@@ -1,4 +1,4 @@
-package main
+package simple_buffer
 
 // based on https://www.educative.io/answers/how-to-read-and-write-with-golang-bufio
 
@@ -15,7 +15,7 @@ func (*Writer) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func main() {
+func SimpleBuffer() {
 	// declare a buffered writer
 	// with buffer size 4
 	w := new(Writer)

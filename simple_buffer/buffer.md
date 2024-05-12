@@ -16,8 +16,3 @@ If the buffer still has space after the last write, it will not attempt to compl
 
 3. A write larger than buffer capacity is made
 If a write is larger than buffer capacity,​ the buffer is skipped because there is no need to buffer.
-
-
-
-Re-use
-We can re-use the same bufio.NewWriterSize for different writers using the reset() method:
