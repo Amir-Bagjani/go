@@ -1,0 +1,23 @@
+In Golang, bufio is a package used for buffered IO. Buffering IO is a technique used to temporarily accumulate the results for an IO operation before transmitting it forward. This technique can increase the speed of a program by reducing the number of system calls, which are typically slow operations. In this shot, we will look at some of the abstractions bufio provides for writing and reading operations.
+
+Writing with bufio
+
+With bufio, we can use the bufio.Writer method to accumulate data into a buffer before writing to IO. In the example below, we have demonstrated three likely situations that you may encounter:
+
+1. The buffer is full
+2. The buffer has space after a write
+3. A write larger than buffer capacity is made
+
+1. The buffer is full
+As soon as the buffer is full, the write operation takes place.
+
+2. The buffer has space after write
+If the buffer still has space after the last write, it will not attempt to complete that write until specifically urged to do so by the Flush() method.
+
+3. A write larger than buffer capacity is made
+If a write is larger than buffer capacity,​ the buffer is skipped because there is no need to buffer.
+
+
+
+Re-use
+We can re-use the same bufio.NewWriterSize for different writers using the reset() method:
