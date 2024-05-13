@@ -1,4 +1,4 @@
-package main
+package io
 
 import (
 	"bytes"
@@ -13,8 +13,7 @@ func foo(w *io.PipeWriter) {
 	// Write a message to pipe writer
 	fmt.Fprintln(w, "yooo ten")
 }
-
-func main() {
+func Io() {
 	ten()
 }
 
