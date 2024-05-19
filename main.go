@@ -1,20 +1,27 @@
 package main
 
 import (
-    "bufio"
-    "os"
+	"fmt"
+	"os"
 )
 
 func main() {
-    f := os.Stdout
+	filePath := "files/data.txt"
 
-    w := bufio.NewWriterSize(f, 3)
+	file, err := os.Open(filePath)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer file.Close()
 
-    // Will print abc. d is added the buffer and will not be printed without an explicit .Flush()
-    w.WriteString("abc")
-    w.WriteString("b")
-    // w.WriteString("c")
-    // -----------------
-    // w.WriteString("d")
-	w.Flush()
+	data := make([]byte, 20)
+
+	_, rErr := file.Read(data)
+	if rErr != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(data)
+	fmt.Println(string(data))
+
 }

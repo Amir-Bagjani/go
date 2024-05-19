@@ -12,7 +12,7 @@ But, no one tells you the above program is a simplified version of this one:
 
 ```go
 package main
-import (
+import (****
 	"fmt"
 	"os"
 )
