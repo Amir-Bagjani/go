@@ -283,5 +283,243 @@ func main() {
     fmt.Println(string(data))
 }
 ```
+The code above uses the `os`' package `Open` function to open the file, defer its `Close` function with the `defer` keyword, and create a `data` variable that has the value of 10 bytes using the `make` function. It then checks for errors before printing the `data` out in bytes and string formats:
 
+``` sh
+[49 46 32 102 109 116 10 50 46 32]
+1. fmt
+2. 
+```
+Now that we've explored how to perform various read operations on different file formats in Go, let's explore how to handle write operations.
 
+#### Writing and manipulating files in Go
+Reading and writing files is relatively straightforward in Go, as it provides developers with a lot of functions to perform such tasks without needing to download a third-party library. In this section, we will explore different Go writing tasks and how to handle them properly.
+
+#### Creating a file in Go
+Go's os package provides a Create function that creates files with any extension. For example, suppose you have an application that helps users to deploy applications. In this case, you might want to create an empty log.txt file containing the logs of the application immediately after the user creates a new project:
+
+``` go
+package main
+
+import (
+    "fmt"
+    "log"
+    "os"
+)
+
+func main() {
+    file, err := os.Create("log.txt")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+    fmt.Print("File created successfully")
+}
+```
+
+The code above uses the `os`'s Create function to create an empty `log.txt` file, checks for any error, and prints a success message to the user. The user should see the following output in the terminal:
+
+``` sh
+File created successfully
+```
+Before continuing with writing files in Go, let's explore the different file opening flags in Go, as we will use some of them in the later in the article.
+
+#### File-opening flags in Go
+Go provides file-opening flags represented by constants defined in the os package. These flags determine the behavior of file operations, such as opening, creating, and truncating files. The following is a list of the flags and what they do.
+
+1. os.O_RDONLY: Opens the file as read-only. The file must exist.
+
+2. os.O_WRONLY: Opens the file as write-only. If the file exists, its contents are truncated. If it doesn't exist, a new file is created.
+
+3. os.O_RDWR: Opens the file for reading and writing. If the file exists, its contents are truncated. If it doesn't exist, a new file is created.
+
+4. os.O_APPEND: Appends data to the file when writing. Writes occur at the end of the file.
+
+5. os.O_CREATE: Creates a new file if it doesn't exist.
+
+6. os.O_EXCL: Used with O_CREATE, it ensures that the file is created exclusively, preventing creation if it already exists.
+
+7. os.O_SYNC: Open the file for synchronous I/O operations. Write operations are completed before the call returns.
+
+8. os.O_TRUNC: If the file exists and is successfully opened, its contents are truncated to zero length.
+
+9. os.O_NONBLOCK: Opens the file in non-blocking mode. Operations like read or write may return immediately with an error if no data is available or the operation would block.
+
+These flags can be combined using the bitwise OR (|) operator. For example, `os.O_WRONLY|os.O_CREATE` would open the file for writing, creating it if it doesn't exist.
+
+When using these flags, it's important to check for errors returned by file operations to handle cases where the file cannot be opened or created as expected.
+
+Let's look at how to write text to files in the next section.
+
+#### Writing text to files in Go
+The `os` package also provides a `WriteString` function that helps you write strings to files. For example, you want to update the `log.txt` file with a log message:
+``` go
+package main
+
+import (
+    "log"
+    "os"
+)
+
+func main() {
+    file, err := os.OpenFile("log.txt", os.O_WRONLY|os.O_CREATE, 0644)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+
+    data := "2023-07-11 10:05:12 - Error: Failed to connect to the database. _________________"
+    _, err = file.WriteString(data)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+}
+```
+The code above uses the `OpenFile` function to open the `log.txt` file in write-only mode and creates it if it doesn't exist. It then creates a `data` variable containing a string and uses the `WriteString` function to write string data to the file.
+
+#### Appending to a file in Go
+The code in the previous section deletes the data inside the file before writing the new data every time the code is run, which is acceptable in some cases. However, for a log file, you want it to retain all the previous logs so that the user can refer to them as many times as needed to, for example, perform analytics.
+
+You can open a file in append mode like this:
+``` go 
+package main
+
+import (
+    "log"
+    "os"
+)
+
+func main() {
+    file, err := os.OpenFile("log.txt", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+
+    data := "\n 2023-07-11 10:05:12 - Error: Failed to connect to the database.\n __________________ \n"
+    _, err = file.WriteString(data)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+}
+```
+The code above uses the `os.O_APPEND` to open the file in append mode and will retain all the existing data before adding new data to the `log.txt` file. You should get an updated file each time you run the code instead of a new file.
+
+#### Writing bytes to files in Go
+Go allows you to write bytes to files as strings with the `Write` function. For example, if you are streaming data from a server and it is returning bytes, you can write the bytes to a file to be readable
+
+``` go
+package main
+
+import (
+    "log"
+    "os"
+)
+
+func main() {
+    file, err := os.OpenFile("data.bin", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+
+    data := []byte{0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x0A}
+    _, err = file.Write(data)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+}
+```
+The code above opens the `data.bin` file in write-only and append mode and creates it if it doesn't already exist. The code above should return a `data.bin` file containing the following:
+
+``` sh 
+Hello, World!
+```
+
+Next, let's explore how to write formatted data to a file section.
+
+#### Writing formatted data to a file in Go
+This is one of the most common file-writing tasks when building software applications. For example, if you are building an e-commerce website, you will need to build order confirmation receipts for each buyer, which will contain the details of the user's order. Here is how you can do this in Go:
+
+``` go
+package main
+
+import (
+    "fmt"
+    "log"
+    "os"
+)
+
+func main() {
+    username, orderNumber := "Adams_adebayo", "ORD6543234"
+    file, err := os.Create(username + orderNumber + ".pdf")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+    item1, item2, item3 := "shoe", "bag", "shirt"
+    price1, price2, price3 := 1000, 2000, 3000
+
+    _, err = fmt.Fprintf(file, "Username: %s\nOrder Number: %s\nItem 1: %s\nPrice 1: %d\nItem 2: %s\nPrice 2: %d\nItem 3: %s\nPrice 3: %d\n", username, orderNumber, item1, price1, item2, price2, item3, price3)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+}
+```
+
+The code above defines two variables, `username` and `orderNumber`, creates a `.pdf` based on the variables, checks for errors, and defers the `Close` function with the `defer` keyword. It then defines three variables, `item1`, `item2`, and `item3`, formats a message with the `fmt`'s `Fprintf` all the variables, and writes it to the `.pdf` file.
+
+The code above then creates an `Adams_adebayoORD6543234`.pdf file with the following contents:
+
+``` sh
+Username: Adams_adebayo
+Order Number: ORD6543234
+Item 1: shoe
+Price 1: 1000
+Item 2: bag
+Price 2: 2000
+Item 3: shirt
+Price 3: 3000
+```
+
+Writing to `.csv` files in Go
+With the help of the `encoding/csv` package, you can write data to `.csv` files easily with Go. For example, you want to store new users' profile information in a `.csv` file after they sign up:
+
+``` go
+package main
+
+import (
+    "encoding/csv"
+    "log"
+    "os"
+)
+
+func main() {
+    file, err := os.OpenFile("users.csv", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+
+    writer := csv.NewWriter(file)
+    defer writer.Flush()
+    data := []string{"Adams Adebayo", "30", "Lagos"}
+    err = writer.Write(data)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+}
+```
+The code above opens the `users.csv` file in write-only and append mode and creates it if it doesn't already exist. It will then use the `NewWriter` function to create a `writer` variable, defer the `Flush` function, create a `data` variable with the `string` slice, and write the data to the file with the `Write` function.
+
+The code above will then return a `users.csv` file with the following contents:
+
+``` sh
+Adams Adebayo,30,Lagos
+```
+#### Writing JSON data to a file in Go

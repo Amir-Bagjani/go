@@ -1,27 +1,27 @@
 package main
 
 import (
-	"fmt"
+	"encoding/csv"
+	"log"
 	"os"
 )
 
 func main() {
-	filePath := "files/data.txt"
-
-	file, err := os.Open(filePath)
+	// username, orderNumber := "Ali", "0550554"
+	file, err := os.OpenFile("user.csv", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	defer file.Close()
 
-	data := make([]byte, 20)
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
 
-	_, rErr := file.Read(data)
-	if rErr != nil {
-		fmt.Println(err)
+	data := []string{"Ali", "30", "student"}
+	wErr := writer.Write(data)
+
+	if wErr != nil {
+		log.Fatal(err)
 	}
-
-	fmt.Println(data)
-	fmt.Println(string(data))
 
 }
