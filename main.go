@@ -1,27 +1,29 @@
 package main
 
 import (
-	"encoding/csv"
+	"encoding/json"
 	"log"
 	"os"
 )
 
 func main() {
-	// username, orderNumber := "Ali", "0550554"
-	file, err := os.OpenFile("user.csv", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+	file, err := os.OpenFile("users.json", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
 
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	data := []string{"Ali", "30", "student"}
-	wErr := writer.Write(data)
-
-	if wErr != nil {
-		log.Fatal(err)
+	data := map[string]interface{}{
+		"username": "olodocoder",
+		"twitter":  "@olodocoder",
+		"email":    "hello@olodocoder.com",
+		"website":  "https://dev.to/olodocoder",
+		"location": "Lagos, Nigeria",
 	}
 
+	encoder := json.NewEncoder(file)
+	err = encoder.Encode(data)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

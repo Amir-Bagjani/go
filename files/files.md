@@ -13,6 +13,7 @@ Let's start with plain text files.
 Reading `.txt` files in Go
 The os package provides a ReadFile function that makes reading files straightforward in Go. For example, I have a data.txt file in my project folder, and I can read and print it out with the following code:
 
+###### it uses`os.Open` under the hood
 ``` go
 package main
 
@@ -85,6 +86,7 @@ I have a sample `log.txt `file that looks like this:
 ```
 The code for doing this will look like this:
 
+`os.Open` uses `os.OpenFile` under the hood
 ``` go
 package main
 
@@ -298,6 +300,8 @@ Reading and writing files is relatively straightforward in Go, as it provides de
 #### Creating a file in Go
 Go's os package provides a Create function that creates files with any extension. For example, suppose you have an application that helps users to deploy applications. In this case, you might want to create an empty log.txt file containing the logs of the application immediately after the user creates a new project:
 
+Create uses `OpenFile(name, O_RDWR|O_CREATE|O_TRUNC, 0666)` under the hood
+
 ``` go
 package main
 
@@ -345,7 +349,8 @@ Go provides file-opening flags represented by constants defined in the os packag
 
 9. os.O_NONBLOCK: Opens the file in non-blocking mode. Operations like read or write may return immediately with an error if no data is available or the operation would block.
 
-These flags can be combined using the bitwise OR (|) operator. For example, `os.O_WRONLY|os.O_CREATE` would open the file for writing, creating it if it doesn't exist.
+These flags can be combined using the bitwise OR (|) operator. For example, `os.O_WRONLY|os.O_CREATE` would open the
+file for writing, creating it if it doesn't exist.
 
 When using these flags, it's important to check for errors returned by file operations to handle cases where the file cannot be opened or created as expected.
 
@@ -473,7 +478,7 @@ func main() {
 
 The code above defines two variables, `username` and `orderNumber`, creates a `.pdf` based on the variables, checks for errors, and defers the `Close` function with the `defer` keyword. It then defines three variables, `item1`, `item2`, and `item3`, formats a message with the `fmt`'s `Fprintf` all the variables, and writes it to the `.pdf` file.
 
-The code above then creates an `Adams_adebayoORD6543234`.pdf file with the following contents:
+The code above then creates an `Adams_adebayoORD6543234.pdf` file with the following contents:
 
 ``` sh
 Username: Adams_adebayo
@@ -486,7 +491,7 @@ Item 3: shirt
 Price 3: 3000
 ```
 
-Writing to `.csv` files in Go
+#### Writing to `.csv` files in Go
 With the help of the `encoding/csv` package, you can write data to `.csv` files easily with Go. For example, you want to store new users' profile information in a `.csv` file after they sign up:
 
 ``` go
@@ -523,3 +528,92 @@ The code above will then return a `users.csv` file with the following contents:
 Adams Adebayo,30,Lagos
 ```
 #### Writing JSON data to a file in Go
+Writing JSON data to `.json` files is a common use case in software development. For example, you are building a small application and want to use a simple `.json` file to store your application data:
+
+``` go
+package main
+
+import (
+    "encoding/json"
+    "log"
+    "os"
+)
+
+func main() {
+    file, err := os.OpenFile("users.json", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+
+    data := map[string]interface{}{
+        "username": "olodocoder",
+        "twitter":  "@olodocoder",
+        "email":    "hello@olodocoder.com",
+        "website":  "https://dev.to/olodocoder",
+        "location": "Lagos, Nigeria",
+    }
+
+    encoder := json.NewEncoder(file)
+    err = encoder.Encode(data)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+}
+```
+The code above opens the `users.csv` file in write-only and append mode and creates it if it doesn't already exist, defers the `Close` function, and defines a `data` variable containing the user data. It then creates an `encoder` variable with the `NewEncoder` function and encodes it with the `Encoder` function.
+
+The code above then returns a `users.json` file containing the following:
+```json
+{"email":"hello@olodocoder.com","location":"Lagos, Nigeria","twitter":"@olodocoder","username":"olodocoder","website":"https://dev.to/olodocoder"}
+```
+#### Writing XML data to files in Go
+You can also write XML data to files in Go using the `encoding/xml` package:
+```go
+package main
+
+import (
+    "encoding/xml"
+    "log"
+    "os"
+)
+
+func main() {
+    type Person struct {
+        Name string `xml:"name"`
+        Age  int    `xml:"age"`
+        City string `xml:"city"`
+    }
+
+    file, err := os.OpenFile("users.xml", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+
+    data := Person{
+        Name: "John Doe",
+        Age:  30,
+        City: "New York",
+    }
+
+    encoder := xml.NewEncoder(file)
+    err = encoder.Encode(data)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+}
+```
+The code above defines a `Person` struct with three fields, opens the `users.xml` file in write-only and append mode and creates it if it doesn't already exist, defers the `Close` function, and defines a `data` variable that contains the user data. It then creates an encoder variable with the `NewEncoder` function and encodes it with the Encoder function.
+
+The code above should return a `user.xml` file that contains the following contents:
+
+```xml
+<Person><name>John Doe</name><age>30</age><city>New York</city></Person>
+```
+
+#### Renaming files in Go
+Go enables you to rename files from your code using the `Rename` function:
+
