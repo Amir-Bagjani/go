@@ -1,20 +1,27 @@
 package main
 
 import (
-    "bufio"
-    "os"
+	"encoding/csv"
+	"log"
+	"os"
 )
 
 func main() {
-    f := os.Stdout
+	// username, orderNumber := "Ali", "0550554"
+	file, err := os.OpenFile("user.csv", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
 
-    w := bufio.NewWriterSize(f, 3)
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
 
-    // Will print abc. d is added the buffer and will not be printed without an explicit .Flush()
-    w.WriteString("abc")
-    w.WriteString("b")
-    // w.WriteString("c")
-    // -----------------
-    // w.WriteString("d")
-	w.Flush()
+	data := []string{"Ali", "30", "student"}
+	wErr := writer.Write(data)
+
+	if wErr != nil {
+		log.Fatal(err)
+	}
+
 }
