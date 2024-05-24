@@ -565,12 +565,12 @@ func main() {
 The code above opens the `users.csv` file in write-only and append mode and creates it if it doesn't already exist, defers the `Close` function, and defines a `data` variable containing the user data. It then creates an `encoder` variable with the `NewEncoder` function and encodes it with the `Encoder` function.
 
 The code above then returns a `users.json` file containing the following:
-```json
+``` json
 {"email":"hello@olodocoder.com","location":"Lagos, Nigeria","twitter":"@olodocoder","username":"olodocoder","website":"https://dev.to/olodocoder"}
 ```
 #### Writing XML data to files in Go
 You can also write XML data to files in Go using the `encoding/xml` package:
-```go
+``` go
 package main
 
 import (
@@ -617,3 +617,328 @@ The code above should return a `user.xml` file that contains the following conte
 #### Renaming files in Go
 Go enables you to rename files from your code using the `Rename` function:
 
+``` go
+package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    err := os.Rename("users.xml", "data.xml")
+    if err != nil {
+        fmt.Println(err)
+    }
+
+}
+```
+The code above renames the `users.xml` file created in the previous section to `data.xml`.
+
+#### Deleting files in Go
+Go enables you to delete files with the `Remove` function:
+
+``` go
+package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    err := os.Remove("data.bin")
+    if err != nil {
+        fmt.Println(err)
+    }
+    fmt.Println("File deleted")
+}
+```
+The code above deletes the `data.bin` file from the specified path.
+
+Now that you understand how to write and manipulate different types of files in Go, let's explore how to work with directories.
+
+#### Working with directories in Go
+In addition to files, Go also provides functions that you can use to perform different tasks in applications. We will explore some of these tasks in the following sections.
+
+#### Creating a directory
+Go provides a `Mkdir` function that you can use to create an empty directory:
+
+``` go
+package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    err := os.Mkdir("users", 0755)
+    if err != nil {
+        fmt.Println(err)
+    }
+    fmt.Println("Directory Created Successfully")
+}
+```
+
+The code above creates a `users` folder in the current working directory.
+
+#### Creating multiple directories in Go
+You can create multiple directories in Go using the `MkdirAll` function:
+
+``` go
+package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    err := os.MkdirAll("data/json_data", 0755)
+    if err != nil {
+        fmt.Println(err)
+    }
+    fmt.Println("Directory Created Successfully")
+}
+```
+The code above will create a `data` directory and a `json_data` directory inside it.
+
+Note: If a data directory already exists, the code will only add a `json_data` directory inside it.
+
+#### Checking if a directory exists in Go
+To avoid errors, checking if a directory exists before creating a file or directory inside is good practice. You can use the `Stat` function and the `IsNotExist` function to do a quick check:
+
+``` go
+package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    if _, err := os.Stat("data/csv_data"); os.IsNotExist(err) {
+        fmt.Println("Directory does not exist")
+    } else {
+        fmt.Println("Directory exists")
+    }
+
+}
+```
+The code above returns a message based on the results of the check. In my case, it will return the following:
+
+``` shell
+Directory exists
+```
+#### Renaming directories in Go
+You can also use the `Rename` function to rename directories:
+
+``` go 
+package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    err := os.Rename("data/csv_data", "data/xml_data")
+    if err != nil {
+        fmt.Println(err)
+    }
+
+}
+```
+The code above renames the `data/csv_data` directory to `data/xml_data`.
+
+#### Deleting an empty directory in Go
+You can use the `Remove` function to delete folders in your applications:
+
+``` go 
+package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    err := os.Remove("data/json_data")
+    if err != nil {
+        fmt.Println(err)
+    }
+
+}
+```
+The code above removes the `json_data` directory from the `data` directory.
+
+#### Deleting a directory with all its content in Go
+Go provides a `RemoveAll` function that allows you to remove all the directories and everything inside them, including files and folders:
+``` go 
+package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    err := os.RemoveAll("users")
+    if err != nil {
+        fmt.Println(err)
+    }
+    fmt.Println("users directory and all it's content has been removed")
+}
+```
+The code above deletes the `users` directory and everything inside it.
+
+Note: It's good practice to check if the directory exists before attempting to delete it.
+
+#### Get a list of files and directories in a directory in Go
+You can retrieve a list of all the files and directories in a directory using the `ReadDir` function:
+``` go 
+package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    dirEntries, err := os.ReadDir("data")
+    if err != nil {
+        fmt.Println(err)
+    }
+
+    for _, entry := range dirEntries {
+        fmt.Println(entry.Name())
+    }
+}
+```
+The code above returns a list of all the directories and files inside the `data` folder.
+
+Now that you know how to work with directories in Go applications, let's explore some of the advanced file operations in the next section.
+
+#### Advanced file operations in Go
+In this section, we will explore some of the advanced file operations you might encounter in Go applications.
+
+#### Writing compressed data to a file in Go
+Working with compressed files is uncommon, but here's how to create a `.txt` file inside a compressed file using the `compress/gzip` package:
+
+``` go 
+package main
+
+import (
+    "compress/gzip"
+    "fmt"
+    "log"
+    "os"
+)
+
+func main() {
+    file, err := os.OpenFile("data.txt.gz", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+
+    gzipWriter := gzip.NewWriter(file)
+    defer gzipWriter.Close()
+
+    data := "Data to compress"
+    _, err = gzipWriter.Write([]byte(data))
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Println("File compressed successfully")
+}
+```
+The code above creates a `data.txt.gz`, which contains a `data.txt` file in the working directory.
+
+#### Writing encrypted data to a file in Go
+When building applications that require secure files, you can create an encrypted file with Go's `crypto/aes` and `crypto/cipher` packages:
+
+``` go 
+package main
+
+import (
+    "crypto/aes"
+    "crypto/cipher"
+    "fmt"
+    "log"
+    "os"
+)
+
+func main() {
+    // file, err := os.OpenFile("encrypted.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+    file, err := os.Create("encrypted.txt")
+    if err != nil {
+        log.Fatal(err)
+        fmt.Println("Error")
+    }
+    defer file.Close()
+
+    key := []byte("cacf2ebb8cf3402964356547f20cced5")
+    plaintext := []byte("This is a secret! Don't tell anyone!🤫")
+
+    block, err := aes.NewCipher(key)
+    if err != nil {
+        log.Fatal(err)
+        fmt.Println("Error")
+    }
+
+    ciphertext := make([]byte, len(plaintext))
+    stream := cipher.NewCTR(block, make([]byte, aes.BlockSize))
+    stream.XORKeyStream(ciphertext, plaintext)
+
+    _, err = file.Write(ciphertext)
+    if err != nil {
+        log.Fatal(err)
+        fmt.Println("Error")
+    }
+    fmt.Println("Encrypted file created successfully")
+}
+```
+The code above creates an `encrypted.txt` file containing an encrypted version of the plaintext string:
+
+``` sh 
+?Э_g?L_.?^_?,_?_;?S???{?Lؚ?W4r
+W?8~?
+```
+#### Copying a file to another directory in Go
+Copying existing files to different locations is something we all do frequently. Here's how to do it in Go:
+
+``` go 
+package main
+
+import (
+    "fmt"
+    "io"
+    "os"
+)
+
+func main() {
+    srcFile, err := os.Open("data/json.go")
+    if err != nil {
+        fmt.Println(err)
+    }
+    defer srcFile.Close()
+
+    destFile, err := os.Create("./json.go")
+    if err != nil {
+        fmt.Println(err)
+    }
+    defer destFile.Close()
+
+    _, err = io.Copy(destFile, srcFile)
+    if err != nil {
+        fmt.Println(err)
+    }
+    fmt.Println("Copy done!")
+}
+```
+The code above copies the `json.go` file in the data directory and its contents and then creates another `json.go` with the same in the root directory.
+
+#### Get file properties in Go
+Go allows you to get the properties of a file with the `Stat` function:
