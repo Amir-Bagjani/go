@@ -942,3 +942,59 @@ The code above copies the `json.go` file in the data directory and its contents 
 
 #### Get file properties in Go
 Go allows you to get the properties of a file with the `Stat` function:
+
+``` go
+package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    fileInfo, err := os.Stat("config.json")
+    if err != nil {
+        fmt.Println(err)
+    }
+
+    fmt.Println("File name:", fileInfo.Name())
+    fmt.Println("Size in bytes:", fileInfo.Size())
+    fmt.Println("Permissions:", fileInfo.Mode())
+    fmt.Println("Last modified:", fileInfo.ModTime())
+
+    fmt.Println("File properties retrieved successfully")
+}
+```
+The code above returns the name, size, permissions, and last modified date of the `config.json` file:
+
+``` sh 
+File name: config.json
+Size in bytes: 237
+Permissions: -rw-r--r--
+Last modified: 2023-07-11 22:46:59.705875417 +0100 WAT
+File properties retrieved successfully
+```
+#### Get the current working directory path in Go
+You can get the current working directory of your application in Go:
+
+``` go 
+package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    wd, err := os.Getwd()
+    if err != nil {
+        fmt.Println(err)
+    }
+
+    fmt.Println("Current working directory:", wd)
+
+}
+```
+The code above will return the full path of my current working directory:
+
+###### Current working directory: /Users/user12/Documents/gos/go-files
