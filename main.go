@@ -2,41 +2,34 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
-	"strings"
 )
 
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
 func main() {
-	p := filepath.Join("dir1", "dir2", "filename")
-	fmt.Println(p)
+	file, err := os.CreateTemp("", "sample_")
+	check(err)
+	defer os.Remove(file.Name())
 
-	fmt.Println(filepath.Join("dir1//", "filename"))
-	fmt.Println(filepath.Join("dir1/../dir1", "filename"))
+	fmt.Println("temporary file name is", file.Name())
 
-	fmt.Println(filepath.Base(p))
-	fmt.Println(filepath.Dir(p))
+	_, err = file.Write([]byte("hello mo"))
+	check(err)
 
-	d, f := filepath.Split(p)
-	fmt.Println("directory =>", d, "base is =>", f)
+	dir, dErr := os.MkdirTemp("", "sample_dir_")
+	check(dErr)
+	defer os.RemoveAll(dir)
 
-	fmt.Println(filepath.IsAbs("/dir"))
-	fmt.Println(filepath.IsAbs("dir"))
+	fmt.Println("Temp dir name:", dir)
 
-	filename := "config.json"
-	exc := filepath.Ext(filename)
-	fmt.Println(exc)
-	fmt.Println(strings.TrimSuffix(filename, exc))
+	p := filepath.Join(dir, "data.txt")
 
-	rel, err := filepath.Rel("a/b", "a/b/t/file")
-	if err != nil {
-        panic(err)
-    }
-    fmt.Println(rel)
-
-	rel, err = filepath.Rel("a/b", "a/c/t/file")
-	if err != nil {
-        panic(err)
-    }
-    fmt.Println(rel)
-
+	err = os.WriteFile(p,[]byte("asdasdasd"), 0644)
+	check(err)
 }
