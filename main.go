@@ -1,35 +1,21 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"os"
-	"path/filepath"
+	"strings"
 )
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
+const str = "Reading is my...\r\n favourite"
 
 func main() {
-	file, err := os.CreateTemp("", "sample_")
-	check(err)
-	defer os.Remove(file.Name())
+	fmt.Println("length of reader is", len(str))
 
-	fmt.Println("temporary file name is", file.Name())
+	stringReader := strings.NewReader(str)
 
-	_, err = file.Write([]byte("hello mo"))
-	check(err)
+	bs := bufio.NewScanner(stringReader)
 
-	dir, dErr := os.MkdirTemp("", "sample_dir_")
-	check(dErr)
-	defer os.RemoveAll(dir)
-
-	fmt.Println("Temp dir name:", dir)
-
-	p := filepath.Join(dir, "data.txt")
-
-	err = os.WriteFile(p,[]byte("asdasdasd"), 0644)
-	check(err)
+	for bs.Scan() {
+		fmt.Printf("The output is %q \n", bs.Text())
+	}
 }

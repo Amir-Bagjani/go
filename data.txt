@@ -1,0 +1,1 @@
+The Peek method lets us see the first -n- bytes (referred to as peek value) in the buffer without consuming them.
