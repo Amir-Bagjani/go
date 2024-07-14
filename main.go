@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	_ "net/http/pprof"
-	"os"
 )
 
 type user struct {
@@ -16,29 +14,17 @@ type user struct {
 var users = []user{}
 
 func main() {
-	mux := http.DefaultServeMux
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
+	http.ListenAndServe(":8080", http.HandlerFunc(routeHandler))
+}
 
-			w.WriteHeader(http.StatusAccepted)
-			f, _ := os.OpenFile("http/index.html", os.O_RDONLY, 0644)
-			data, _ := io.ReadAll(f)
-			w.Write(data)
-
-		} else {
-			w.WriteHeader(http.StatusFound)
-			w.Write([]byte(`<h2>Not Found</h2>`))
-		}
-	})
-
-	mux.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
+func routeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/users" {
 		if r.Method == http.MethodGet {
 
 			data, _ := json.Marshal(users)
 
 			w.WriteHeader(http.StatusAccepted)
 			w.Write(data)
-
 		} else if r.Method == http.MethodPost {
 			newUser := user{}
 
@@ -61,12 +47,7 @@ func main() {
 
 			w.Write(d)
 		} else {
-
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
-	})
-
-	
-
-	http.ListenAndServe(":8080", nil)
+	}
 }
