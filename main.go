@@ -1,53 +1,51 @@
 package main
 
 import (
-	"encoding/json"
-	"io"
-	"net/http"
+	"context"
+	"fmt"
+	"time"
 )
 
-type user struct {
-	Name  string `json:"user_name"`
-	Email string `json:"user_email"`
-}
+func doSomething(ctx context.Context) {
+	ctx, cancelCtx := context.WithTimeout(ctx, 1500*time.Millisecond)
+	defer cancelCtx()
 
-var users = []user{}
+	printCh := make(chan int)
+	go doAnother(ctx, printCh)
 
-func main() {
-	http.ListenAndServe(":8080", http.HandlerFunc(routeHandler))
-}
-
-func routeHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == "/users" {
-		if r.Method == http.MethodGet {
-
-			data, _ := json.Marshal(users)
-
-			w.WriteHeader(http.StatusAccepted)
-			w.Write(data)
-		} else if r.Method == http.MethodPost {
-			newUser := user{}
-
-			data, _ := io.ReadAll(r.Body)
-			json.Unmarshal(data, &newUser)
-
-			for _, v := range users {
-				if v.Email == newUser.Email {
-					w.WriteHeader(http.StatusBadRequest)
-
-					return
-				}
-			}
-
-			users = append(users, newUser)
-
-			w.WriteHeader(http.StatusCreated)
-
-			d, _ := json.Marshal(newUser)
-
-			w.Write(d)
-		} else {
-			w.WriteHeader(http.StatusMethodNotAllowed)
+	for i := 0; i < 10; i++ {
+		select {
+		case printCh <- i:
+			time.Sleep(1 * time.Second)
+		case <-ctx.Done():
+			return
 		}
 	}
+
+	cancelCtx()
+
+	time.Sleep(100 * time.Millisecond)
+
+	fmt.Println("Doing something finished")
+
+}
+func doAnother(ctx context.Context, printCh <-chan int) {
+	for {
+		select {
+		case <-ctx.Done():
+			if err := ctx.Err(); err != nil {
+				fmt.Println("do another error:", err)
+			}
+			fmt.Println("do another finished")
+			return
+		case num := <-printCh:
+			fmt.Println("do another:", num)
+		}
+	}
+}
+
+func main() {
+	ctx := context.Background()
+
+	doSomething(ctx)
 }
